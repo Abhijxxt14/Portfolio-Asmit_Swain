@@ -14,42 +14,77 @@ const SkillBar: React.FC<{ skill: Skill }> = ({ skill }) => {
     if (inView) {
       controls.start({ 
         width: `${skill.level}%`, 
-        transition: { duration: 1, ease: "easeOut" } 
+        transition: { duration: 1.5, ease: "easeOut" } 
       });
     }
   }, [controls, inView, skill.level]);
 
   return (
-    <div className="mb-4">
-      <div className="flex justify-between items-center mb-1">
+    <motion.div 
+      className="mb-4"
+      initial={{ opacity: 0, x: -50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div 
+        className="flex justify-between items-center mb-1"
+        initial={{ opacity: 0, y: -10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         <span className="font-medium text-gray-700 dark:text-slate-200">{skill.name}</span>
-        <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{skill.level}%</span>
-      </div>
-      <div ref={ref} className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5">
+        <motion.span 
+          className="text-sm font-medium text-indigo-600 dark:text-indigo-400"
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          {skill.level}%
+        </motion.span>
+      </motion.div>
+      <div ref={ref} className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
         <motion.div
-          className="bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full"
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 h-2.5 rounded-full relative"
           initial={{ width: "0%" }}
           animate={controls}
-        />
+        >
+          <motion.div
+            className="absolute inset-0 bg-white/20 rounded-full"
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 const SkillCategory: React.FC<{ 
   category: string; 
-  skills: Skill[] 
-}> = ({ category, skills }) => (
-  <div>
-    <h3 className="text-2xl font-semibold text-gray-800 dark:text-slate-100 mb-4 border-b-2 border-gray-200 dark:border-slate-700 pb-2">
+  skills: Skill[];
+  index: number;
+}> = ({ category, skills, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.6, delay: index * 0.2 }}
+  >
+    <motion.h3 
+      className="text-2xl font-semibold text-gray-800 dark:text-slate-100 mb-4 border-b-2 border-gray-200 dark:border-slate-700 pb-2"
+      initial={{ opacity: 0, x: -30 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.2 + 0.2 }}
+    >
       {category}
-    </h3>
+    </motion.h3>
     <div>
       {skills.map(skill => (
         <SkillBar key={skill.name} skill={skill} />
       ))}
     </div>
-  </div>
+  </motion.div>
 );
 
 const Skills: React.FC = () => {
@@ -63,6 +98,7 @@ const Skills: React.FC = () => {
           <SkillCategory 
             key={category} 
             category={category}
+            index={categories.indexOf(category)}
             skills={portfolioData.skills.filter(skill => skill.category === category)}
           />
         ))}
